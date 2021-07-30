@@ -1,3 +1,4 @@
+// Create Event as well as drawing action
 window.addEventListener("load", () => {
     const canvas = document.querySelector('#canvas');
     const context = canvas.getContext('2d');
@@ -34,12 +35,27 @@ window.addEventListener("load", () => {
     canvas.addEventListener('mousedown', startpos);
     canvas.addEventListener('mouseup', finpos);
     canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseout', stopdraw)
+    canvas.addEventListener('mouseout', stopdraw);
 
 });
 
+// Clear the drawing board
 function cleardraw() {
     const canvas = document.querySelector('#canvas');
     const context = canvas.getContext('2d')
     context.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// Save the Drawn Image
+function save() {
+    const canvas = document.querySelector('#canvas');
+    const img_data = canvas.toDataURL()
+    const ia = 'hello'
+    $.ajax({
+        type: "POST",
+        url: "/predict",
+        data: {
+            imageBase64: img_data
+        }
+    });
 }
