@@ -52,23 +52,18 @@ def index():
 def predict():
     if request.method == "POST":
         img64 = request.values["imageBase64"]
-        print(img64)
         img_enc = img64.split(",")[1]
-        print("\n")
-        print("\n")
-        print(img_enc)
         img = base64.b64decode(img_enc)
         im_frame = Image.open(io.BytesIO(img))
         im_frame = PIL.ImageOps.invert(im_frame)
         im_frame = transforms.Resize((64, 64))(im_frame)
         im_frame.show()
         im_frame = transforms.ToTensor()(im_frame)
-        print(im_frame.shape)
-        pauline2 = im_frame.unsqueeze(0).to(device)
-        prediction = int(torch.sigmoid(densenet(pauline2)) > 0.5)
+        im_frame = im_frame.unsqueeze(0).to(device)
+        prediction = int(torch.sigmoid(densenet(im_frame)) > 0.5)
         print(classes[prediction])
         print(
-            f"The prediction is {classes[prediction]} with probability of {float(torch.sigmoid(densenet(pauline2))) if classes[prediction] == 'pig' else float(1-torch.sigmoid(densenet(pauline2)))}"
+            f"The prediction is {classes[prediction]} with probability of {float(torch.sigmoid(densenet(im_frame))) if classes[prediction] == 'pig' else float(1-torch.sigmoid(densenet(im_frame)))}"
         )
 
     return "hello"
