@@ -25,8 +25,6 @@ class catdataset(Dataset):
     def __getitem__(self, index):
         image = self.full[index].reshape(28,28)
         image = torch.tensor(image)
-        image = image.float()
-        image.unsqueeze_(0)
         image = image.repeat(3, 1, 1)
         y_label = torch.tensor(int(self.labels[index]))
         if self.transform:
