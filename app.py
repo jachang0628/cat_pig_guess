@@ -9,8 +9,10 @@ import os
 import os.path
 import base64
 from collections import OrderedDict
-from PIL import Image
 import io
+from PIL import Image
+import PIL.ImageOps
+import cv2
 
 os.chdir(os.path.dirname(__file__))
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -31,9 +33,9 @@ extra_layer = nn.Sequential(
 densenet.classifier = extra_layer
 densenet.to(device)
 # check if model is trained already, if yes then load the model and if not train the model
-if os.path.exists("saved_model/full_trained.pt"):
+if os.path.exists("saved_model/full_trained_v2.pt"):
     densenet.load_state_dict(
-        torch.load("saved_model/full_trained.pt", map_location=device)
+        torch.load("saved_model/full_trained_v2.pt", map_location=device)
     )
     densenet.eval()
 
@@ -50,13 +52,24 @@ def index():
 def predict():
     if request.method == "POST":
         img64 = request.values["imageBase64"]
+        print(img64)
         img_enc = img64.split(",")[1]
-        img = base64.decodebytes(img_enc.encode("utf-8"))
-        image = Image.open(io.BytesIO(img))
-        image_np = np.array(image)
-
-    print(image_np)
-    print(image_np.shape)
+        print("\n")
+        print("\n")
+        print(img_enc)
+        img = base64.b64decode(img_enc)
+        im_frame = Image.open(io.BytesIO(img))
+        im_frame = PIL.ImageOps.invert(im_frame)
+        im_frame = transforms.Resize((64, 64))(im_frame)
+        im_frame.show()
+        im_frame = transforms.ToTensor()(im_frame)
+        print(im_frame.shape)
+        pauline2 = im_frame.unsqueeze(0).to(device)
+        prediction = int(torch.sigmoid(densenet(pauline2)) > 0.5)
+        print(classes[prediction])
+        print(
+            f"The prediction is {classes[prediction]} with probability of {float(torch.sigmoid(densenet(pauline2))) if classes[prediction] == 'pig' else float(1-torch.sigmoid(densenet(pauline2)))}"
+        )
 
     return "hello"
 
