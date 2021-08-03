@@ -2,8 +2,10 @@
 window.addEventListener("load", () => {
     const canvas = document.querySelector('#canvas');
     const context = canvas.getContext('2d');
-    canvas.height = 500
-    canvas.width = 500
+    canvas.height = 500;
+    canvas.width = 500;
+    context.fillStyle = "#fff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
 
     let painting = false;
 
@@ -18,7 +20,7 @@ window.addEventListener("load", () => {
 
     function draw(e) {
         if (!painting) return;
-        context.lineWidth = 5;
+        context.lineWidth = 8;
         context.lineCap = 'round';
         context.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
         context.stroke();
@@ -44,12 +46,13 @@ function cleardraw() {
     const canvas = document.querySelector('#canvas');
     const context = canvas.getContext('2d')
     context.clearRect(0, 0, canvas.width, canvas.height);
+    context.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 // Save the Drawn Image
 function save() {
     const canvas = document.querySelector('#canvas');
-    const img_data = canvas.toDataURL()
+    const img_data = canvas.toDataURL('image/jpeg')
     const ia = 'hello'
     $.ajax({
         type: "POST",
