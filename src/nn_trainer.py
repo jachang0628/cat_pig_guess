@@ -15,8 +15,6 @@ from torch.utils.data import Dataset
 from PIL import Image
 import PIL.ImageOps
 def trainer(model, criterion, optimizer, trainloader, validloader, epochs=5, verbose=True):
-    """Simple training wrapper for PyTorch network."""
-    
     train_loss = []
     valid_loss = []
     train_accuracy = []
@@ -30,30 +28,30 @@ def trainer(model, criterion, optimizer, trainloader, validloader, epochs=5, ver
         # Training
         for X, y in trainloader:
             X, y = X.to(device), y.to(device)
-            optimizer.zero_grad()       # Zero all the gradients w.r.t. parameters
-            y_hat = model(X).flatten()  # Forward pass to get output
-            y_hat_labels = torch.sigmoid(y_hat) > 0.5        # convert probabilities to False (0) and True (1)
-            loss = criterion(y_hat, y.type(torch.float32))   # Calculate loss based on output
-            loss.backward()             # Calculate gradients w.r.t. parameters
-            optimizer.step()            # Update parameters
-            train_batch_loss += loss.item()  # Add loss for this batch to running total
-            train_batch_acc += (y_hat_labels == y).type(torch.float32).mean().item()   # Average accuracy for this batch
-        train_loss.append(train_batch_loss / len(trainloader))     # loss = total loss in epoch / number of batches = loss per batch
-        train_accuracy.append(train_batch_acc / len(trainloader))  # accuracy
+            optimizer.zero_grad()       
+            y_hat = model(X).flatten() 
+            y_hat_labels = torch.sigmoid(y_hat) > 0.5        
+            loss = criterion(y_hat, y.type(torch.float32))   
+            loss.backward()             
+            optimizer.step()            
+            train_batch_loss += loss.item()  
+            train_batch_acc += (y_hat_labels == y).type(torch.float32).mean().item()   
+        train_loss.append(train_batch_loss / len(trainloader))     
+        train_accuracy.append(train_batch_acc / len(trainloader)) 
         
         # Validation
-        model.eval()  # this turns off those random dropout layers, we don't want them for validation!
-        with torch.no_grad():  # this stops pytorch doing computational graph stuff under-the-hood and saves memory and time
+        model.eval() 
+        with torch.no_grad():  
             for X, y in validloader:
                 X, y = X.to(device), y.to(device)
-                y_hat = model(X).flatten()  # Forward pass to get output
+                y_hat = model(X).flatten()  
                 y_hat_labels = torch.sigmoid(y_hat) > 0.5
-                loss = criterion(y_hat, y.type(torch.float32))   # Calculate loss based on output
-                valid_batch_loss += loss.item()                  # Add loss for this batch to running total
-                valid_batch_acc += (y_hat_labels == y).type(torch.float32).mean().item()   # Average accuracy for this batch  
+                loss = criterion(y_hat, y.type(torch.float32))   
+                valid_batch_loss += loss.item()                 
+                valid_batch_acc += (y_hat_labels == y).type(torch.float32).mean().item()   
         valid_loss.append(valid_batch_loss / len(validloader))
-        valid_accuracy.append(valid_batch_acc / len(validloader))  # accuracy
-        model.train()  # turn back on the dropout layers for the next training loop
+        valid_accuracy.append(valid_batch_acc / len(validloader))  
+        model.train()  
         
         # Print progress
         if verbose:
